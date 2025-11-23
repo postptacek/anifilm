@@ -1,87 +1,109 @@
 :root {
-    --primary: #ff00ff;
-    --secondary: #00ffff;
-    --bg: #000;
-    --text: #fff;
+    --primary: #00ff9d;
+    --bg-dark: #0a0a0a;
+    --glitch: #ff00ff;
 }
 
 body {
     margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
     overflow: hidden;
+    font-family: 'Courier New', Courier, monospace;
+    background: black;
+    color: white;
 }
 
-.ui-layer {
+.app-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* AR Scene is handled by A-Frame canvas, z-index 0 */
+
+/* HUD */
+.hud {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 10;
     pointer-events: none;
+    /* Let clicks pass through to AR */
+    z-index: 10;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+.hud-top {
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
     padding: 20px;
-    box-sizing: border-box;
-}
-
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    pointer-events: auto;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    border-radius: 10px;
-    backdrop-filter: blur(5px);
-}
-
-.grid-item {
-    aspect-ratio: 1;
-    border: 1px solid #333;
-    border-radius: 5px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
-    font-size: 0.8rem;
-    color: #aaa;
 }
 
-.grid-item.found {
-    background: var(--primary);
-    color: #000;
-    border-color: var(--secondary);
+.logo {
     font-weight: bold;
-    box-shadow: 0 0 10px var(--primary);
+    font-size: 1.2rem;
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary);
 }
 
-.scan-overlay {
+.progress-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.progress-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.progress-dots {
+    display: flex;
+    gap: 4px;
+    margin-top: 5px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+}
+
+.dot.active {
+    background: var(--primary);
+    box-shadow: 0 0 8px var(--primary);
+}
+
+.glitch-indicator {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80vw;
-    height: 80vw;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    border-radius: 20px;
-    pointer-events: none;
+    bottom: 20px;
+    left: 20px;
+    color: var(--glitch);
+    font-weight: bold;
+    animation: blink 1s infinite;
 }
 
-.scan-overlay::after {
-    content: 'SCAN TARGET';
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.8rem;
-    letter-spacing: 2px;
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
-.victory-screen {
+/* Victory Overlay */
+.victory-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -90,27 +112,57 @@ body {
     background: rgba(0, 0, 0, 0.9);
     z-index: 20;
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     pointer-events: auto;
+    /* Enable clicks */
+    animation: fadeIn 1s ease-out;
 }
 
-button {
-    background: var(--primary);
-    color: white;
-    border: none;
+.victory-content {
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.submit-btn {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
     padding: 15px 30px;
     font-size: 1.2rem;
-    border-radius: 30px;
-    cursor: pointer;
-    margin-top: 20px;
-    text-transform: uppercase;
+    font-family: inherit;
     font-weight: bold;
+    cursor: pointer;
+    margin-top: 30px;
+    transition: all 0.3s;
+    text-transform: uppercase;
+}
+
+.submit-btn:hover {
+    background: var(--primary);
+    color: black;
     box-shadow: 0 0 20px var(--primary);
 }
 
-button:disabled {
+.submit-btn:disabled {
     opacity: 0.5;
-    cursor: not-allowed;
+    cursor: wait;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }

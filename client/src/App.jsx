@@ -5,124 +5,142 @@ import 'mind-ar/dist/mindar-image-aframe.prod.js';
 import './index.css';
 
 const TOTAL_FRAMES = 12;
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/submit';
+const EASTER_EGG_INDEX = 12; // 13th frame (0-indexed)
 
 function App() {
-    const [foundFrames, setFoundFrames] = useState(() => {
-        return JSON.parse(localStorage.getItem('anifilm_found_frames')) || [];
-    });
+    const [foundFrames, setFoundFrames] = useState([]);
+    const [isGlitchMode, setIsGlitchMode] = useState(false);
+    const [showVictory, setShowVictory] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [hasSubmitted, setHasSubmitted] = useState(false);
+    const [userId, setUserId] = useState(localStorage.getItem('anifilm_user_id') || `user_${Math.random().toString(36).substr(2, 9)}`);
     const sceneRef = useRef(null);
 
+    // Load progress from local storage
+    useEffect(() => {
+        localStorage.setItem('anifilm_user_id', userId);
+        const saved = JSON.parse(localStorage.getItem('anifilm_found_frames') || '[]');
+        setFoundFrames(saved);
+
+        if (saved.includes(EASTER_EGG_INDEX)) setIsGlitchMode(true);
+        if (saved.length >= TOTAL_FRAMES && !saved.includes(EASTER_EGG_INDEX)) {
+            // Check if they have all normal frames (0-11)
+            const normalFrames = saved.filter(id => id < TOTAL_FRAMES);
+            if (normalFrames.length === TOTAL_FRAMES) setShowVictory(true);
+        }
+    }, []);
+
+    // Save progress
     useEffect(() => {
         localStorage.setItem('anifilm_found_frames', JSON.stringify(foundFrames));
+
+        const normalFrames = foundFrames.filter(id => id < TOTAL_FRAMES);
+        if (normalFrames.length === TOTAL_FRAMES) {
+            setShowVictory(true);
+        }
     }, [foundFrames]);
 
-    useEffect(() => {
-        const sceneEl = sceneRef.current;
-        if (!sceneEl) return;
+    const handleTargetFound = (index) => {
+        if (!foundFrames.includes(index)) {
+            setFoundFrames(prev => [...prev, index]);
 
-        const handleTargetFound = (event) => {
-            const index = parseInt(event.target.getAttribute('data-index'));
-            console.log(`Target ${index} found`);
+            // Haptic feedback if available
+            if (navigator.vibrate) navigator.vibrate(200);
 
-            setFoundFrames(prev => {
-                if (!prev.includes(index)) {
-                    return [...prev, index];
-                }
-                return prev;
-            });
-        };
-
-        // Attach listeners to entities
-        // Note: In React with A-Frame, it's safer to attach events via ref or standard addEventListener
-        // after the scene is loaded.
-        const entities = sceneEl.querySelectorAll('a-entity[mindar-image-target]');
-        entities.forEach(entity => {
-            entity.addEventListener('targetFound', handleTargetFound);
-        });
-
-        return () => {
-            entities.forEach(entity => {
-                entity.removeEventListener('targetFound', handleTargetFound);
-            });
-        };
-    }, []);
+            if (index === EASTER_EGG_INDEX) {
+                setIsGlitchMode(true);
+                alert("👁️ GLITCH MODE UNLOCKED 👁️");
+            }
+        }
+    };
 
     const handleSubmit = async () => {
         setIsSubmitting(true);
         try {
-            const userId = localStorage.getItem('anifilm_user_id') || `user_${Date.now()}`;
-            localStorage.setItem('anifilm_user_id', userId);
-
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/submit';
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     userId,
                     foundAll: true,
-                    glitchMode: false // Can add toggle later
+                    glitchMode: isGlitchMode
                 })
             });
 
-            const data = await response.json();
-            if (data.success) {
-                setHasSubmitted(true);
-                alert('Sent to the Ether!');
+            if (response.ok) {
+                alert("📡 TRANSMISSION SUCCESSFUL. Check the CRT Display.");
+                // Optional: Reset or show final state
             } else {
-                throw new Error(data.error);
+                alert("Transmission failed. Try again.");
             }
-        } catch (err) {
-            alert('Error sending: ' + err.message);
-        } finally {
-            setIsSubmitting(false);
+        } catch (error) {
+            console.error(error);
+            alert("Connection error. Check your internet.");
         }
+        setIsSubmitting(false);
     };
 
-    const isComplete = foundFrames.length >= TOTAL_FRAMES;
-
     return (
-        <>
-            <div className="ui-layer">
-                <div className="grid-container">
-                    {Array.from({ length: TOTAL_FRAMES }).map((_, i) => (
-                        <div key={i} className={`grid-item ${foundFrames.includes(i) ? 'found' : ''}`}>
-                            {i + 1}
-                        </div>
-                    ))}
-                </div>
-                {!isComplete && <div className="scan-overlay"></div>}
-            </div>
-
-            {isComplete && (
-                <div className="victory-screen">
-                    <h1>COLLECTION COMPLETE</h1>
-                    <p>You found all 12 frames!</p>
-                    <button onClick={handleSubmit} disabled={isSubmitting || hasSubmitted}>
-                        {isSubmitting ? 'SENDING...' : hasSubmitted ? 'SENT!' : 'SUBMIT TO ETHER'}
-                    </button>
-                </div>
-            )}
-
+        <div className="app-container">
+            {/* AR Scene */}
             <a-scene
                 ref={sceneRef}
                 mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiError: no; uiScanning: no;"
                 color-space="sRGB"
                 renderer="colorManagement: true, physicallyCorrectLights"
                 vr-mode-ui="enabled: false"
-                device-orientation-permission-ui="enabled: false"
-            >
+                device-orientation-permission-ui="enabled: false">
+
+                <a-assets>
+                    {/* Add assets here if needed */}
+                </a-assets>
+
                 <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-                {Array.from({ length: TOTAL_FRAMES }).map((_, i) => (
-                    <a-entity key={i} mindar-image-target={`targetIndex: ${i}`} data-index={i}>
-                        <a-plane color="cyan" opacity="0.5" height="1" width="1"></a-plane>
-                        <a-text value={`FRAME ${i + 1}`} align="center" color="white"></a-text>
+                {/* Generate targets 0-12 */}
+                {[...Array(TOTAL_FRAMES + 1)].map((_, index) => (
+                    <a-entity
+                        key={index}
+                        mindar-image-target={`targetIndex: ${index}`}
+                        onTargetFound={() => handleTargetFound(index)}>
+                        {/* AR Overlay Content */}
+                        <a-plane color={foundFrames.includes(index) ? "#00ff00" : "#ff0000"} opacity="0.5" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-plane>
+                        <a-text value={foundFrames.includes(index) ? "COLLECTED" : "SCANNING..."} color="white" align="center" position="0 0 0.1" scale="1.5 1.5 1.5"></a-text>
                     </a-entity>
                 ))}
             </a-scene>
-        </>
+
+            {/* HUD (Heads-Up Display) */}
+            <div className="hud">
+                <div className="hud-top">
+                    <div className="logo">ANIFILM AR</div>
+                    <div className="progress-container">
+                        <div className="progress-text">{foundFrames.filter(i => i < 12).length} / {TOTAL_FRAMES}</div>
+                        <div className="progress-dots">
+                            {[...Array(TOTAL_FRAMES)].map((_, i) => (
+                                <div key={i} className={`dot ${foundFrames.includes(i) ? 'active' : ''}`}></div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Glitch Indicator */}
+                {isGlitchMode && <div className="glitch-indicator">GLITCH ACTIVE</div>}
+            </div>
+
+            {/* Victory Screen Overlay */}
+            {showVictory && (
+                <div className="victory-overlay">
+                    <div className="victory-content">
+                        <h1>SEQUENCE COMPLETE</h1>
+                        <p>All frames collected.</p>
+                        <button className="submit-btn" onClick={handleSubmit} disabled={isSubmitting}>
+                            {isSubmitting ? "TRANSMITTING..." : "SUBMIT TO ETHER"}
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
 
