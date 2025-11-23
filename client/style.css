@@ -189,6 +189,62 @@ body {
   text-align: center;
 }
 
+#capture-ui {
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  z-index: 20;
+}
+
+#capture-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 4px solid #fff;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.1s;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+#capture-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.1s;
+}
+
+#capture-btn:active {
+  transform: scale(0.95);
+}
+
+#capture-btn:active::after {
+  transform: translate(-50%, -50%) scale(0.9);
+  background: var(--primary);
+}
+
+#capture-ui p {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  font-weight: bold;
+}
+
 .hidden {
   display: none !important;
 }
