@@ -1,113 +1,97 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/playlist';
-const POLL_INTERVAL = 30000;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function App() {
     const [playlist, setPlaylist] = useState([]);
-    const [queue, setQueue] = useState([]);
-    const [currentVideo, setCurrentVideo] = useState(null);
-    const [debugLog, setDebugLog] = useState([]);
-    const [showDebug, setShowDebug] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isDebug, setIsDebug] = useState(false);
     const videoRef = useRef(null);
 
-    const log = (msg) => {
-        console.log(msg);
-        setDebugLog(prev => [`${new Date().toLocaleTimeString()}: ${msg}`, ...prev].slice(0, 10));
-    };
-
+    // Fetch playlist
     const fetchPlaylist = async () => {
         try {
-            const res = await fetch(API_URL);
-            const data = await res.json();
-            return data;
-        } catch (err) {
-            log('Error fetching playlist: ' + err.message);
-            return [];
+            const response = await fetch(`${API_URL}/api/playlist`);
+            const data = await response.json();
+
+            if (data && data.length > 0) {
+                // New videos at the front
+                const existingIds = playlist.map(v => v.id);
+                const newVideos = data.filter(v => !existingIds.includes(v.id));
+
+                if (newVideos.length > 0) {
+                    console.log('New videos detected:', newVideos.length);
+                    setPlaylist(prev => [...newVideos, ...prev]);
+                } else if (playlist.length === 0) {
+                    // First load
+                    setPlaylist(data);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch playlist:', error);
         }
     };
 
-    const updateLibrary = async () => {
-        log('Polling...');
-        const serverList = await fetchPlaylist();
-
-        setPlaylist(prevPlaylist => {
-            const newItems = serverList.filter(item => !prevPlaylist.find(p => p.id === item.id));
-
-            if (newItems.length > 0) {
-                log(`Found ${newItems.length} new videos!`);
-                setQueue(prevQueue => [...newItems, ...prevQueue]); // Add new items to front
-                return [...prevPlaylist, ...newItems];
-            }
-            return prevPlaylist;
-        });
-    };
-
-    // Initial Load & Polling
+    // Initial fetch and polling
     useEffect(() => {
-        updateLibrary();
-        const interval = setInterval(updateLibrary, POLL_INTERVAL);
-
-        const handleKey = (e) => {
-            if (e.key === 'd') setShowDebug(prev => !prev);
-        };
-        window.addEventListener('keydown', handleKey);
-
-        return () => {
-            clearInterval(interval);
-            window.removeEventListener('keydown', handleKey);
-        };
+        fetchPlaylist();
+        const interval = setInterval(fetchPlaylist, 30000); // Poll every 30s
+        return () => clearInterval(interval);
     }, []);
 
-    // Playback Loop
+    // Handle video end
+    const handleVideoEnd = () => {
+        setCurrentIndex((prev) => (prev + 1) % playlist.length);
+    };
+
+    // Handle keyboard (debug toggle)
     useEffect(() => {
-        if (!currentVideo && queue.length > 0) {
-            const next = queue[0];
-            setQueue(prev => prev.slice(1));
-            setCurrentVideo(next);
-        } else if (!currentVideo && queue.length === 0 && playlist.length > 0) {
-            // Refill from playlist (shuffle)
-            log('Refilling queue...');
-            const shuffled = [...playlist].sort(() => Math.random() - 0.5);
-            setQueue(shuffled);
+        const handleKeyPress = (e) => {
+            if (e.key === 'd') setIsDebug(!isDebug);
+        };
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+    }, [isDebug]);
+
+    // Auto-play when playlist updates
+    useEffect(() => {
+        if (videoRef.current && playlist.length > 0) {
+            videoRef.current.load();
+            videoRef.current.play().catch(err => console.warn('Autoplay blocked:', err));
         }
-    }, [currentVideo, queue, playlist]);
+    }, [currentIndex, playlist]);
 
-    const handleEnded = () => {
-        log('Video ended');
-        setCurrentVideo(null); // Triggers effect to play next
-    };
-
-    const handleError = (e) => {
-        log('Video error');
-        setCurrentVideo(null);
-    };
-
-    // Construct URL - Handle absolute vs relative
-    // If API_URL is http://myserver.com/api/playlist, video url is /videos/foo.mp4
-    // We need http://myserver.com/videos/foo.mp4
-    const getVideoSrc = (video) => {
-        if (!video) return '';
-        if (video.url.startsWith('http')) return video.url;
-
-        const baseUrl = new URL(API_URL).origin;
-        return `${baseUrl}${video.url}`;
-    };
+    const currentVideo = playlist[currentIndex];
 
     return (
-        <>
-            {showDebug && <div className="debug">{debugLog.join('\n')}</div>}
-            <video
-                ref={videoRef}
-                src={getVideoSrc(currentVideo)}
-                autoPlay
-                muted
-                playsInline
-                onEnded={handleEnded}
-                onError={handleError}
-            />
-        </>
+        <div className="display-container">
+            {playlist.length === 0 ? (
+                <div className="no-content">
+                    <div className="loading-text">WAITING FOR CONTENT...</div>
+                    <div className="sub-text">Scanning for submissions</div>
+                </div>
+            ) : (
+                <video
+                    ref={videoRef}
+                    className="fullscreen-video"
+                    src={`${API_URL}${currentVideo?.url}`}
+                    onEnded={handleVideoEnd}
+                    loop={playlist.length === 1}
+                    muted={false}
+                    playsInline
+                />
+            )}
+
+            {isDebug && (
+                <div className="debug-overlay">
+                    <div><strong>API:</strong> {API_URL}</div>
+                    <div><strong>Playlist:</strong> {playlist.length} videos</div>
+                    <div><strong>Current:</strong> {currentIndex + 1}/{playlist.length}</div>
+                    <div><strong>Playing:</strong> {currentVideo?.id}</div>
+                </div>
+            )}
+        </div>
     );
 }
 
