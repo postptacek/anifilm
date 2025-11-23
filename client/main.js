@@ -8,6 +8,7 @@ const API_URL = 'http://localhost:3000/api/submit';
 // State
 let foundFrames = JSON.parse(localStorage.getItem('anifilm_found_frames')) || [];
 let isGlitchMode = localStorage.getItem('anifilm_glitch_mode') === 'true';
+let currentTargetIndex = null; // Track currently detected target
 
 // DOM Elements
 const landingPage = document.getElementById('landing-page');
@@ -20,6 +21,9 @@ const collectionGrid = document.getElementById('collection-grid');
 const victoryScreen = document.getElementById('victory-screen');
 const submitBtn = document.getElementById('submit-btn');
 const sceneEl = document.querySelector('a-scene');
+const captureUI = document.getElementById('capture-ui');
+const captureBtn = document.getElementById('capture-btn');
+const scanOverlay = document.getElementById('scan-overlay');
 
 // Initialize UI
 function initUI() {
@@ -65,20 +69,51 @@ function renderCollection() {
 function onTargetFound(index) {
     console.log(`Target ${index} found!`);
 
-    if (!foundFrames.includes(index)) {
-        foundFrames.push(index);
+    // If already found, do nothing or maybe show "Already Collected"
+    if (foundFrames.includes(index)) {
+        return;
+    }
+
+    currentTargetIndex = index;
+
+    // Show Capture UI
+    captureUI.classList.remove('hidden');
+    scanOverlay.classList.add('hidden');
+}
+
+// Handle Target Lost
+function onTargetLost(index) {
+    console.log(`Target ${index} lost!`);
+
+    if (currentTargetIndex === index) {
+        currentTargetIndex = null;
+
+        // Hide Capture UI
+        captureUI.classList.add('hidden');
+        scanOverlay.classList.remove('hidden');
+    }
+}
+
+// Capture Button Click
+captureBtn.addEventListener('click', () => {
+    if (currentTargetIndex !== null && !foundFrames.includes(currentTargetIndex)) {
+        // Add to collection
+        foundFrames.push(currentTargetIndex);
         localStorage.setItem('anifilm_found_frames', JSON.stringify(foundFrames));
 
-        // Show a toast or visual feedback (optional)
-        // For now, we just update the collection state which will be rendered next time it's opened
+        // Visual Feedback
+        alert('FRAME COLLECTED!'); // Simple feedback for now, can be improved
 
-        // Also check if we should show victory immediately? 
-        // Maybe better to let them check collection to see progress.
-        // But if it's the last one, we might want to show victory.
+        // Hide Capture UI since it's now collected
+        captureUI.classList.add('hidden');
+        scanOverlay.classList.remove('hidden'); // Back to scanning
+
+        // Update Collection UI (in background)
+        renderCollection();
 
         checkCompletion();
     }
-}
+});
 
 // Check if all frames are found
 function checkCompletion() {
@@ -92,22 +127,16 @@ function checkCompletion() {
 
 // Setup AR Events
 function setupAREvents() {
+    // Attach event listeners to the pre-existing target entities in HTML
     for (let i = 0; i < TOTAL_FRAMES; i++) {
-        let entity = document.querySelector(`[mindar-image-target="targetIndex: ${i}"]`);
+        const entity = document.querySelector(`#target-${i}`);
 
-        if (!entity) {
-            entity = document.createElement('a-entity');
-            entity.setAttribute('mindar-image-target', `targetIndex: ${i}`);
-
-            const plane = document.createElement('a-plane');
-            plane.setAttribute('color', 'lime');
-            plane.setAttribute('opacity', '0.5');
-            entity.appendChild(plane);
-
-            sceneEl.appendChild(entity);
+        if (entity) {
+            entity.addEventListener('targetFound', () => onTargetFound(i));
+            entity.addEventListener('targetLost', () => onTargetLost(i));
+        } else {
+            console.warn(`Target entity #target-${i} not found in HTML`);
         }
-
-        entity.addEventListener('targetFound', () => onTargetFound(i));
     }
 }
 
@@ -153,7 +182,7 @@ sceneEl.addEventListener('loaded', setupAREvents);
 
 // Debug: Cheat button (hidden) to unlock all
 window.unlockAll = () => {
-    foundFrames = Array.from({ length: 12 }, (_, i) => i);
+    foundFrames = Array.from({ length: TOTAL_FRAMES }, (_, i) => i);
     localStorage.setItem('anifilm_found_frames', JSON.stringify(foundFrames));
     initUI();
 };
