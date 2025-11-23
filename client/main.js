@@ -10,28 +10,55 @@ let foundFrames = JSON.parse(localStorage.getItem('anifilm_found_frames')) || []
 let isGlitchMode = localStorage.getItem('anifilm_glitch_mode') === 'true';
 
 // DOM Elements
-const gridEl = document.getElementById('grid');
+const landingPage = document.getElementById('landing-page');
+const startBtn = document.getElementById('start-btn');
+const uiLayer = document.getElementById('ui-layer');
+const collectionBtn = document.getElementById('collection-btn');
+const collectionView = document.getElementById('collection-view');
+const closeCollectionBtn = document.getElementById('close-collection-btn');
+const collectionGrid = document.getElementById('collection-grid');
 const victoryScreen = document.getElementById('victory-screen');
 const submitBtn = document.getElementById('submit-btn');
 const sceneEl = document.querySelector('a-scene');
 
 // Initialize UI
 function initUI() {
-    gridEl.innerHTML = '';
+    renderCollection();
+    checkCompletion();
+}
+
+// Start Hunt Flow
+startBtn.addEventListener('click', () => {
+    landingPage.classList.add('hidden');
+    uiLayer.classList.remove('hidden');
+    // Request camera permission if needed (browser handles this via A-Frame usually)
+});
+
+// Collection View Toggle
+collectionBtn.addEventListener('click', () => {
+    renderCollection();
+    collectionView.classList.remove('hidden');
+});
+
+closeCollectionBtn.addEventListener('click', () => {
+    collectionView.classList.add('hidden');
+});
+
+// Render Collection Grid
+function renderCollection() {
+    collectionGrid.innerHTML = '';
     for (let i = 0; i < TOTAL_FRAMES; i++) {
         const item = document.createElement('div');
         item.className = 'grid-item';
-        item.id = `grid-item-${i}`;
+        item.id = `collection-item-${i}`;
         item.textContent = i + 1;
 
         if (foundFrames.includes(i)) {
             item.classList.add('found');
         }
 
-        gridEl.appendChild(item);
+        collectionGrid.appendChild(item);
     }
-
-    checkCompletion();
 }
 
 // Handle Target Found
@@ -42,11 +69,12 @@ function onTargetFound(index) {
         foundFrames.push(index);
         localStorage.setItem('anifilm_found_frames', JSON.stringify(foundFrames));
 
-        // Update UI
-        const item = document.getElementById(`grid-item-${index}`);
-        if (item) item.classList.add('found');
+        // Show a toast or visual feedback (optional)
+        // For now, we just update the collection state which will be rendered next time it's opened
 
-        // Visual feedback in AR (optional, handled by A-Frame entity visibility usually)
+        // Also check if we should show victory immediately? 
+        // Maybe better to let them check collection to see progress.
+        // But if it's the last one, we might want to show victory.
 
         checkCompletion();
     }
@@ -55,19 +83,15 @@ function onTargetFound(index) {
 // Check if all frames are found
 function checkCompletion() {
     if (foundFrames.length >= TOTAL_FRAMES) {
+        // If we are in the collection view, maybe close it?
+        collectionView.classList.add('hidden');
         victoryScreen.classList.remove('hidden');
-        // Stop AR engine to save battery? 
-        // sceneEl.systems['mindar-image-system'].stop(); // Optional
+        uiLayer.classList.add('hidden'); // Hide main UI
     }
 }
 
 // Setup AR Events
 function setupAREvents() {
-    // We need to attach event listeners to the a-entities
-    // Since we might not have all 12 in the HTML yet, let's inject them dynamically if they don't exist
-    // or just assume the user will add them. 
-    // For this demo, I'll inject the missing entities to make it robust.
-
     for (let i = 0; i < TOTAL_FRAMES; i++) {
         let entity = document.querySelector(`[mindar-image-target="targetIndex: ${i}"]`);
 

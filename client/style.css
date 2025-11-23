@@ -10,7 +10,39 @@ body {
   font-family: 'Inter', sans-serif;
   background: var(--bg);
   color: var(--text);
-  overflow: hidden; /* Prevent scrolling while in AR */
+  overflow: hidden;
+  /* Prevent scrolling while in AR */
+}
+
+#landing-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.landing-content h1 {
+  font-size: 3rem;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  color: var(--primary);
+  text-shadow: 0 0 10px var(--primary);
+}
+
+.landing-content p {
+  font-size: 1rem;
+  color: #ccc;
+  margin-bottom: 2rem;
+  max-width: 80%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #ui-layer {
@@ -20,7 +52,7 @@ body {
   width: 100%;
   height: 100%;
   z-index: 10;
-  pointer-events: none; /* Let clicks pass through to AR scene if needed, but we usually want UI to handle clicks */
+  pointer-events: none;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -28,35 +60,96 @@ body {
   box-sizing: border-box;
 }
 
-.grid-container {
+.top-bar {
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+
+#collection-btn {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  backdrop-filter: blur(5px);
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+#collection-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.collection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.collection-header h2 {
+  margin: 0;
+  color: var(--secondary);
+  text-shadow: 0 0 5px var(--secondary);
+}
+
+#close-collection-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.collection-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  pointer-events: auto;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 10px;
-  border-radius: 10px;
-  backdrop-filter: blur(5px);
+  gap: 15px;
+  overflow-y: auto;
 }
 
 .grid-item {
   aspect-ratio: 1;
   border: 1px solid #333;
-  border-radius: 5px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  font-size: 0.8rem;
-  color: #aaa;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 1rem;
+  color: #555;
+  position: relative;
 }
 
 .grid-item.found {
-  background: var(--primary);
-  color: #000;
-  border-color: var(--secondary);
-  font-weight: bold;
-  box-shadow: 0 0 10px var(--primary);
+  background: rgba(255, 0, 255, 0.2);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+}
+
+.grid-item.found::after {
+  content: '✓';
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  font-size: 0.8rem;
+  color: var(--secondary);
 }
 
 #scan-overlay {
@@ -64,21 +157,36 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80vw;
-  height: 80vw;
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  width: 70vw;
+  height: 70vw;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   pointer-events: none;
+}
+
+#scan-overlay::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 20px;
+  height: 20px;
+  border-top: 4px solid var(--secondary);
+  border-left: 4px solid var(--secondary);
+  border-radius: 4px 0 0 0;
 }
 
 #scan-overlay::after {
   content: 'SCAN TARGET';
   position: absolute;
-  bottom: -30px;
+  bottom: -40px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.8);
+  width: 100%;
+  text-align: center;
 }
 
 .hidden {
@@ -92,24 +200,38 @@ body {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.9);
-  z-index: 20;
+  z-index: 40;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   pointer-events: auto;
+  text-align: center;
 }
 
-button {
+#victory-screen h1 {
+  color: var(--secondary);
+  text-shadow: 0 0 10px var(--secondary);
+  margin-bottom: 10px;
+}
+
+button#start-btn,
+button#submit-btn {
   background: var(--primary);
   color: white;
   border: none;
-  padding: 15px 30px;
+  padding: 15px 40px;
   font-size: 1.2rem;
   border-radius: 30px;
   cursor: pointer;
   margin-top: 20px;
   text-transform: uppercase;
   font-weight: bold;
-  box-shadow: 0 0 20px var(--primary);
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+  transition: transform 0.1s;
+}
+
+button#start-btn:active,
+button#submit-btn:active {
+  transform: scale(0.95);
 }
