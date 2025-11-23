@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anifilm AR Gallery</title>
+    <style>
+        body {
+            margin: 0;
+            background: black;
+            overflow: hidden;
+            cursor: none;
+            /* Hide cursor for kiosk mode */
+        }
+
+        video {
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain;
+        }
+
+        #debug {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: lime;
+            font-family: monospace;
+            z-index: 100;
+            display: none;
+            /* Toggle with 'D' key */
+        }
+    </style>
+  <script type="module" crossorigin src="./assets/index-D_liiMXr.js"></script>
+</head>
+
+<body>
+    <video id="player" autoplay muted playsinline></video>
+    <div id="debug"></div>
+</body>
+
+</html>
