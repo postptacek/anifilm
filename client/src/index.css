@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -5,20 +7,92 @@
 }
 
 body {
+    font-family: 'JetBrains Mono', monospace;
     overflow: hidden;
     background: #000;
     color: #fff;
-    font-family: 'Courier New', monospace;
 }
 
-.container {
+.screen {
     position: relative;
     width: 100vw;
     height: 100vh;
-    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* MindAR canvas is fullscreen */
+/* LANDING */
+.landing {
+    background: linear-gradient(135deg, #1a1a1aff, #0a0a0a);
+}
+
+.landing .content {
+    text-align: center;
+    padding: 40px;
+    max-width: 500px;
+}
+
+.landing h1 {
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.landing p {
+    font-size: 16px;
+    opacity: 0.7;
+    margin-bottom: 40px;
+}
+
+.btn-primary {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 16px 40px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: transform 0.2s;
+}
+
+.btn-primary:active {
+    transform: scale(0.95);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #fff;
+    border: 2px solid #fff;
+    padding: 14px 38px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 2px;
+    margin-top: 15px;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #fff;
+    color: #000;
+}
+
+.resume {
+    margin-top: 30px;
+    opacity: 0.5;
+    font-size: 14px;
+}
+
+/* SCANNING */
+.scanning {
+    background: #000;
+}
 
 .ui {
     position: absolute;
@@ -30,124 +104,175 @@ body {
     z-index: 100;
 }
 
-/* Top Bar - Minimal */
 .top-bar {
     position: absolute;
     top: 20px;
+    left: 20px;
     right: 20px;
     display: flex;
-    gap: 15px;
-    align-items: center;
-    font-size: 20px;
-    font-weight: bold;
+    justify-content: space-between;
+    pointer-events: auto;
+}
+
+.top-bar button {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #fff;
     color: #fff;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
 }
 
-.counter {
-    letter-spacing: 2px;
-}
-
-.glitch {
-    animation: blink 0.5s infinite;
-}
-
-@keyframes blink {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0;
-    }
-}
-
-/* Detection Flash */
-.detection-flash {
+.found-notification {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 100px;
-    color: #fff;
-    animation: flash 0.5s ease-out;
-    pointer-events: none;
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #fff;
+    padding: 30px 40px;
+    text-align: center;
+    animation: fadeInOut 2s;
 }
 
-@keyframes flash {
+.found-notification .icon {
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+
+.found-notification .text {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+@keyframes fadeInOut {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.5);
+        transform: translate(-50%, -50%) scale(0.8);
     }
 
-    50% {
+    20% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1.2);
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
     }
 
     100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -50%) scale(0.8);
     }
 }
 
-/* Victory Screen */
-.victory {
+/* COLLECTION */
+.collection {
+    background: #0a0a0a;
+    flex-direction: column;
+}
+
+.collection .header {
     position: absolute;
     top: 0;
     left: 0;
+    right: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #333;
+}
+
+.collection .header button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.collection .header h2 {
+    font-size: 24px;
+    letter-spacing: 3px;
+}
+
+.collection .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    padding: 100px 20px 40px;
+    max-width: 500px;
     width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
+}
+
+.slot {
+    aspect-ratio: 1;
+    border: 2px solid #333;
     display: flex;
     justify-content: center;
     align-items: center;
-    pointer-events: auto;
-    animation: fadeIn 0.5s;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-.victory-content {
-    text-align: center;
-}
-
-.title {
-    font-size: 48px;
-    font-weight: bold;
-    letter-spacing: 10px;
-    margin-bottom: 40px;
-    color: #fff;
-}
-
-.submit {
-    background: transparent;
-    border: 2px solid #fff;
-    color: #fff;
-    padding: 15px 40px;
-    font-size: 18px;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    cursor: pointer;
-    letter-spacing: 3px;
+    font-size: 24px;
+    font-weight: 700;
     transition: all 0.3s;
 }
 
-.submit:hover {
+.slot.found {
+    border-color: #fff;
     background: #fff;
     color: #000;
 }
 
-.submit:active {
-    transform: scale(0.95);
+.easter {
+    position: absolute;
+    bottom: 40px;
+    text-align: center;
+    width: 100%;
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
+/* VICTORY */
+.victory {
+    background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+}
+
+.victory .content {
+    text-align: center;
+    padding: 40px;
+}
+
+.celebration {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.victory h1 {
+    font-size: 48px;
+    letter-spacing: 8px;
+    margin-bottom: 15px;
+}
+
+.victory p {
+    font-size: 16px;
+    opacity: 0.7;
+    margin-bottom: 40px;
 }
