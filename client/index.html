@@ -9,7 +9,7 @@
          but we could use the local npm packages if we configured the worker paths correctly. -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <script type="module" crossorigin src="./assets/index-bno946V1.js"></script>
+  <script type="module" crossorigin src="./assets/index-PjUR4cpl.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BeMSnjM7.css">
 </head>
 
@@ -27,6 +27,10 @@
       <button id="collection-btn">COLLECTION</button>
     </div>
     <div id="scan-overlay"></div>
+    <div id="capture-ui" class="hidden">
+      <button id="capture-btn"></button>
+      <p>TARGET DETECTED</p>
+    </div>
   </div>
 
   <div id="collection-view" class="hidden">
@@ -67,8 +71,55 @@
       <a-text value="FRAME 2" align="center" color="white"></a-text>
     </a-entity>
 
-    <!-- ... Repeat for all 12 ... -->
-    <!-- For brevity in this artifact, I'll handle the rest dynamically or assume they exist -->
+    <a-entity mindar-image-target="targetIndex: 2" id="target-2">
+      <a-plane color="yellow" opacity="0.5" height="1" width="1"></a-plane>
+      <a-text value="FRAME 3" align="center" color="black"></a-text>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 3" id="target-3">
+      <a-plane color="lime" opacity="0.5" height="1" width="1"></a-plane>
+      <a-text value="FRAME 4" align="center" color="black"></a-text>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 4" id="target-4">
+      <a-plane color="orange" opacity="0.5" height="1" width="1"></a-plane>
+      <a-text value="FRAME 5" align="center" color="black"></a-text>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 5" id="target-5">
+      <a-plane color="red" opacity="0.5" height="1" width="1"></a-plane>
+      <a-text value="FRAME 6" align="center" color="white"></a-text>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 6" id="target-6">
+      <a-plane color="purple" opacity="0.5" height="1" width="1"></a-plane>
+      <a-text value="FRAME 7" align="center" color="white"></a-text>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 7" id="target-7">
+      <a-plane color="blue" opacity="0.5" height="1" width="1"></a-plane>
+      <a-text value="FRAME 8" align="center" color="white"></a-text>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 8" id="target-8">
+      <a-plane color="teal" opacity="0.5" height="1" width="1"></a-plane>
+      <a-text value="FRAME 9" align="center" color="white"></a-text>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 9" id="target-9">
+      <a-plane color="pink" opacity="0.5" height="1" width="1"></a-plane>
+      <a-text value="FRAME 10" align="center" color="black"></a-text>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 10" id="target-10">
+      <a-plane color="brown" opacity="0.5" height="1" width="1"></a-plane>
+      <a-text value="FRAME 11" align="center" color="white"></a-text>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 11" id="target-11">
+      <a-plane color="gold" opacity="0.5" height="1" width="1"></a-plane>
+      <a-text value="FRAME 12" align="center" color="black"></a-text>
+    </a-entity>
 
   </a-scene>
 
