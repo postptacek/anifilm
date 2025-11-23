@@ -22,13 +22,13 @@ jobs:
       - name: Build Client
         run: |
           cd client
-          npm ci
+          npm install
           npm run build
           
       - name: Build Display
         run: |
           cd display
-          npm ci
+          npm install
           npm run build
 
       - name: Prepare Deployment
