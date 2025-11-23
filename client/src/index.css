@@ -1,160 +1,111 @@
-:root {
-    --primary: #00ff9d;
-    --bg-dark: #0a0a0a;
-    --glitch: #ff00ff;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-    margin: 0;
     overflow: hidden;
-    font-family: 'Courier New', Courier, monospace;
-    background: black;
-    color: white;
+    background: #000;
+    color: #fff;
+    font-family: 'Courier New', monospace;
 }
 
-.app-container {
+.container {
     position: relative;
     width: 100vw;
     height: 100vh;
+    background: #000;
 }
 
-/* AR Scene is handled by A-Frame canvas, z-index 0 */
+/* MindAR canvas is fullscreen */
 
-/* HUD */
-.hud {
+.ui {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    /* Let clicks pass through to AR */
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    z-index: 100;
 }
 
-.hud-top {
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: var(--primary);
-    text-shadow: 0 0 10px var(--primary);
-}
-
-.progress-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.progress-text {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.progress-dots {
-    display: flex;
-    gap: 4px;
-    margin-top: 5px;
-}
-
-.dot {
-    width: 8px;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-}
-
-.dot.active {
-    background: var(--primary);
-    box-shadow: 0 0 8px var(--primary);
-}
-
-.glitch-indicator {
+/* Top Bar - Minimal */
+.top-bar {
     position: absolute;
-    bottom: 20px;
-    left: 20px;
-    color: var(--glitch);
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    font-size: 20px;
     font-weight: bold;
-    animation: blink 1s infinite;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.counter {
+    letter-spacing: 2px;
+}
+
+.glitch {
+    animation: blink 0.5s infinite;
 }
 
 @keyframes blink {
-    0% {
+
+    0%,
+    100% {
         opacity: 1;
     }
 
     50% {
-        opacity: 0.3;
-    }
-
-    100% {
-        opacity: 1;
+        opacity: 0;
     }
 }
 
-/* Victory Overlay */
-.victory-overlay {
+/* Detection Flash */
+.detection-flash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 100px;
+    color: #fff;
+    animation: flash 0.5s ease-out;
+    pointer-events: none;
+}
+
+@keyframes flash {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Victory Screen */
+.victory {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 20;
+    background: rgba(0, 0, 0, 0.95);
     display: flex;
     justify-content: center;
     align-items: center;
     pointer-events: auto;
-    /* Enable clicks */
-    animation: fadeIn 1s ease-out;
-}
-
-.victory-content {
-    text-align: center;
-    padding: 20px;
-}
-
-h1 {
-    font-size: 2rem;
-    margin-bottom: 10px;
-    color: var(--primary);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.submit-btn {
-    background: transparent;
-    border: 2px solid var(--primary);
-    color: var(--primary);
-    padding: 15px 30px;
-    font-size: 1.2rem;
-    font-family: inherit;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 30px;
-    transition: all 0.3s;
-    text-transform: uppercase;
-}
-
-.submit-btn:hover {
-    background: var(--primary);
-    color: black;
-    box-shadow: 0 0 20px var(--primary);
-}
-
-.submit-btn:disabled {
-    opacity: 0.5;
-    cursor: wait;
+    animation: fadeIn 0.5s;
 }
 
 @keyframes fadeIn {
@@ -165,4 +116,38 @@ h1 {
     to {
         opacity: 1;
     }
+}
+
+.victory-content {
+    text-align: center;
+}
+
+.title {
+    font-size: 48px;
+    font-weight: bold;
+    letter-spacing: 10px;
+    margin-bottom: 40px;
+    color: #fff;
+}
+
+.submit {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 15px 40px;
+    font-size: 18px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    cursor: pointer;
+    letter-spacing: 3px;
+    transition: all 0.3s;
+}
+
+.submit:hover {
+    background: #fff;
+    color: #000;
+}
+
+.submit:active {
+    transform: scale(0.95);
 }
