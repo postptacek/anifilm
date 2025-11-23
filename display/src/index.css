@@ -1,0 +1,22 @@
+body {
+    margin: 0;
+    background: black;
+    overflow: hidden;
+    cursor: none;
+}
+
+video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+}
+
+.debug {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: lime;
+    font-family: monospace;
+    z-index: 100;
+    white-space: pre-wrap;
+}

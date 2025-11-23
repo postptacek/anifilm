@@ -1,0 +1,46 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Client
+        run: |
+          cd client
+          npm ci
+          npm run build
+          
+      - name: Build Display
+        run: |
+          cd display
+          npm ci
+          npm run build
+
+      - name: Prepare Deployment
+        run: |
+          mkdir deploy
+          cp -r client/dist deploy/client
+          cp -r display/dist deploy/display
+          # Create redirect index
+          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./client/" /></head><body>Redirecting to Client...</body></html>' > deploy/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: deploy
+          branch: gh-pages
